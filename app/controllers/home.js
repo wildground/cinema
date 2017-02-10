@@ -4,7 +4,6 @@ var express = require('express'),
   mongoose = require('mongoose'),
   Seat = mongoose.model('Seat'),
   OrderDetail=mongoose.model('OrderDetail');
-var app;
 module.exports = function (app) {
   app.use('/', router);
 };
@@ -27,29 +26,6 @@ router.post('/initalData',function (req,res) {
   });
 });
 
-router.get("/test",function (req,res,next) {
-  Seat.findOneAndUpdate({_id:"589d7c2f2efb2039688ca52c"},{isReserved:true}).exec().then(d=>res.json(d));
- /* let seat=new Seat();
-  seat.username="username";
-  req.app.get("io").sockets.emit("reserve",{id:"bbbbb"});
-  seat.save().then(d=>res.json(getOutput(d))).catch(err=>getError(err));*/
-});
-
-router.get("/testupdate",function (req,res) {
-  var query = { id: '589c17465fe09d038858a77d' };
-  Seat.findById('589c17465fe09d038858a77d',(err,seat)=>{
-    if(err)
-      res.json(err);
-    if(!seat.username)
-    {
-      seat.username="ryan";
-      seat.save().then(d=>res.json(getOutput(d))).catch(err=>res.json( getError(err)));
-    }
-
-  });
-  //Seat.findOneAndUpdate(query,{username:"ryan"}).exec().then(d=>res.json(getOutput(d))).catch(err=>getError(err));
-});
-
 router.get('/', function (req, res, next) {
   Seat.find(function (err, seats) {
     if (err) return next(err);
@@ -60,9 +36,7 @@ router.get('/', function (req, res, next) {
     });
   });
 });
-router.post("ryan",function (req,res) {
-   res.json(req.body);
-});
+
 router.post("/reserve",function (req,res) {
   if(!req.body.username||!req.body.ids)
     res.json(getError({message:"invalid param"}));
