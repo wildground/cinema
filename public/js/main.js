@@ -28,7 +28,7 @@ $(function () {
           $('#btnConfirm').attr("disabled",true);
         else
           $('#btnConfirm').removeAttr("disabled");
-     // $('#confirm').modal('toggle');
+
     }});
 
   $("#btnConfirm").click(function (event) {
@@ -43,8 +43,14 @@ $(function () {
        contentType:"application/json",
        dataType: 'json',
        data: data
-     },function (err,data) {
-       console.log(data);
+     }).done(function (data) {
+        if(data.code==500)
+          alert(data.message);
+        else
+       {
+         currentSeat=[];
+         alert("约定成功")
+       }
      })
     }
   );
