@@ -9,6 +9,7 @@ module.exports = function (app) {
   app.use('/', router);
 };
 
+//初始化场次数据
 router.post('/initalData',function (req,res) {
   Seat.remove().then(d=>{
     let inserts=[];
@@ -17,6 +18,7 @@ router.post('/initalData',function (req,res) {
       let save=i=>{
         let seat=new Seat();
         seat.name=i;
+        seat.isReserved=false;
         return seat.save();
       };
       inserts.push(save(i));
@@ -26,10 +28,11 @@ router.post('/initalData',function (req,res) {
 });
 
 router.get("/test",function (req,res,next) {
-  let seat=new Seat();
+  Seat.findOneAndUpdate({_id:"589d7c2f2efb2039688ca52c"},{isReserved:true}).exec().then(d=>res.json(d));
+ /* let seat=new Seat();
   seat.username="username";
   req.app.get("io").sockets.emit("reserve",{id:"bbbbb"});
-  seat.save().then(d=>res.json(getOutput(d))).catch(err=>getError(err));
+  seat.save().then(d=>res.json(getOutput(d))).catch(err=>getError(err));*/
 });
 
 router.get("/testupdate",function (req,res) {
@@ -57,26 +60,35 @@ router.get('/', function (req, res, next) {
     });
   });
 });
-
+router.post("ryan",function (req,res) {
+   res.json(req.body);
+});
 router.post("/reserve",function (req,res) {
-  if(!req.body.username||!req.body.id)
-    res.json(getError("invalid param"));
-
-  let order=new OrderDetail();
-  order.username=req.body.username;
-  order.seatid=req.body.id;
-  order.save(d=>{
-    if(d&&d.code&&d.code==11000)
+  if(!req.body.username||!req.body.ids)
+    res.json(getError({message:"invalid param"}));
+   let promises= req.body.ids.map(id=>{
+    let order=new OrderDetail();
+    order.username=req.body.username;
+    order.seatid=id;
+    return order.save().then(d=>
+      Seat.findOneAndUpdate({_id:order.seatid},{isReserved:true}).exec()
+    );
+  });
+  Promise.all(promises).then(d=>{
+    req.app.get("io").sockets.emit("reserve",{ids:req.body.ids});
+    res.json(getOutput(true));
+  }).catch(err=>{
+    if(err.code&&err.code==11000)
     {
-      res.json(getError({message:"座位已经被锁定"}));
+      let removes=req.body.ids.map(id=>
+        OrderDetail.findOneAndRemove({username:req.body.username,seatid:id}).exec()
+      );
+      Promise.all(removes).then(d=> res.json(getError({message:"座位已经被锁定，请重新选择"}))).catch(err=>console.error(err));
       return;
     }
-    else
-    req.app.get("io").sockets.emit("reserve",{id:req.body.id});
-    res.json(getOutput(d));
-  }).catch(err=>{
     res.json(getError(err));
   });
+
 });
 
 

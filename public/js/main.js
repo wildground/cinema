@@ -4,23 +4,47 @@
 $(function () {
 
   var socket = io();
-
      socket.on("reserve",function (data) {
-       $("#"+data.id).css("background-color","red").attr("disabled",true);
-
+       data.ids.forEach(function (id) {
+         $("#"+id).addClass("reserve").attr("disabled",true);
+       })
      });
-  var currentSeat="";
-  $("body").click(function (event) {
+  var currentSeat=[];
+  $("#seats").click(function (event) {
     if( event.target.tagName.toLowerCase()=="button")
     {
-      currentSeat=event.target.id;
-      $('#confirm').modal('toggle');
-    }
-  });
+      if(currentSeat.includes(event.target.id))
+      {
+        currentSeat= currentSeat.filter(function (element) {
+          return element!=event.target.id;
+        });
+        $("#"+event.target.id).removeClass("selected");
+      }
+      else {
+        currentSeat.push(event.target.id);
+        $("#" + event.target.id).addClass("selected");
+      }
+        if(currentSeat.length==0)
+          $('#btnConfirm').attr("disabled",true);
+        else
+          $('#btnConfirm').removeAttr("disabled");
+     // $('#confirm').modal('toggle');
+    }});
 
-  $("#btnConfirm").click(function () {
-     $.ajax({},function (err,data) {
-
+  $("#btnConfirm").click(function (event) {
+     event.preventDefault();
+     var data=JSON.stringify({
+       username:$('#username').val(),
+       ids: currentSeat
+     });
+     $.ajax({
+       url: '/reserve',
+       type: 'post',
+       contentType:"application/json",
+       dataType: 'json',
+       data: data
+     },function (err,data) {
+       console.log(data);
      })
     }
   );

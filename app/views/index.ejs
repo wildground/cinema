@@ -2,30 +2,25 @@
   <h1 class="text-center"><%-title %></h1>
   <p class="text-center">Welcome to <%-title %></p>
 <body>
-<div class="container">
-  <%seats.forEach(function (seat) {%>
+<div class="container" id="seats">
+  <%seats.forEach(function (seat) { if(seat.isReserved){%>
+  <button id="<%= seat._id%>"  class="seat reserve"  disabled>AA</button>
+  <% }else{ %>
   <button id="<%= seat._id%>"  class="seat">AA</button>
-  <%})%>
+  <%}})%>
 </div>
-
-
-<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-      </div>
-      <div class="modal-body">
-        确认购买当前位置？
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="btnConfirm">确定</button>
-      </div>
+<div class="container">
+  <form class="form-inline">
+    <div class="form-group">
+      <label for="username">姓名</label>
+      <input type="text" class="form-control" id="username" placeholder="请填写">
     </div>
-  </div>
+
+    <button  class="btn btn-primary" disabled id="btnConfirm">确认选座</button>
+  </form>
 </div>
+
+
 </body>
 <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/socket.io/1.7.2/socket.io.min.js"></script>
