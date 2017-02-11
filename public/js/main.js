@@ -5,6 +5,7 @@ $(function () {
 
   var socket = io();
      socket.on("reserve",function (data) {
+         $(".selected").removeClass("selected");
        data.ids.forEach(function (id) {
          $("#"+id).addClass("reserve").attr("disabled",true);
        })
@@ -49,6 +50,7 @@ $(function () {
         else
        {
          currentSeat=[];
+
          alert("约定成功")
        }
      })
